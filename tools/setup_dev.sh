@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright European Organization for Nuclear Research (CERN)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -9,23 +10,10 @@
 # - Wen Guan, <wen.guan@cern.ch>, 2016
 
 
-# ignore tmp files
-*.log
-*.pyc
-*.swp
-*.swp
-*~
-*.cache
-*.egg-info
-*.venv
+CurrentDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+RootDir="$( dirname "$CurrentDir" )"
 
-# key file
-*.githubkey
-.githubkey
+export PATH=${RootDir}/tools/externals/usr/bin:$PATH
+export PYTHONPATH=${RootDir}/tools/externals/usr/lib/python/site-packages:$PYTHONPATH
+export PYTHONPATH=${RootDir}/externals:$PYTHONPATH
 
-
-# ignore external files
-externals
-tools/externals
-build
-dist

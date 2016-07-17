@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright European Organization for Nuclear Research (CERN)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,27 +6,9 @@
 # You may obtain a copy of the License at
 # http://www.apache.org/licenses/LICENSE-2.0OA
 #
-# Authors:
-# - Wen Guan, <wen.guan@cern.ch>, 2016
 
 
-# ignore tmp files
-*.log
-*.pyc
-*.swp
-*.swp
-*~
-*.cache
-*.egg-info
-*.venv
-
-# key file
-*.githubkey
-.githubkey
-
-
-# ignore external files
-externals
-tools/externals
-build
-dist
+cp tools/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+cp tools/prepare-commit-msg .git/hooks/prepare-commit-msg
+chmod +x .git/hooks/prepare-commit-msg
