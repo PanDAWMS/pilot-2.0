@@ -85,7 +85,7 @@ def create_virtualenv(venv=VENV):
         run_command(['virtualenv', '-q', '--no-site-packages', VENV])
     elif HAS_CURL:
         print 'Creating venv via curl...',
-        if not run_command("curl -s https://raw.github.com/pypa/virtualenv/master/virtualenv.py | %s - --no-site-packages %s" % (sys.executable, VENV), shell=True):
+        if not run_command("curl -L -s https://raw.github.com/pypa/virtualenv/master/virtualenv.py | %s - --no-site-packages %s" % (sys.executable, VENV), shell=True):
             die('Failed to install virtualenv with curl.')
     print 'done.'
     print 'Installing pip in virtualenv...',

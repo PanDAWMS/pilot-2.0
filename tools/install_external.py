@@ -43,7 +43,6 @@ def run_command(cmd, redirect_output=True, check_exit_code=True, shell=False):
     return output
 
 
-HAS_PIP = bool(run_command(['which', 'pip'], check_exit_code=False).strip())
 HAS_WGET = bool(run_command(['which', 'wget'], check_exit_code=False).strip())
 
 
@@ -65,7 +64,7 @@ def install_pip():
 
     tempdir = tempfile.mkdtemp()
     run_command(['wget', '-O', os.path.join(tempdir, 'get-pip.py'), 'https://bootstrap.pypa.io/get-pip.py'])
-    run_command("python %s/get-pip.py --root=%s --ignore-installed" % (tempdir, os.path.join(ROOT, 'tools/externals')), shell=True)
+    run_command("python %s/get-pip.py --prefix=%s --ignore-installed" % (tempdir, os.path.join(ROOT, 'tools/externals')), shell=True)
     shutil.rmtree(tempdir)
 
 
@@ -73,7 +72,7 @@ def install_dependencies():
     """
     Install external dependencies
     """
-    lib_dir = os.path.join(ROOT, "tools/externals/usr/lib/")
+    lib_dir = os.path.join(ROOT, "tools/externals/lib/")
     for pathname in os.listdir(lib_dir):
         if pathname.startswith('python'):
             lib_path = os.path.join(lib_dir, pathname)
@@ -83,9 +82,9 @@ def install_dependencies():
             elif not os.path.exists(os.readlink(link_path)):
                 os.remove(link_path)
                 os.symlink(lib_path, link_path)
-    envExport = "export PYTHONPATH=$PYTHONPATH:%s/tools/externals/usr/lib/python/site-packages" % ROOT
+    envExport = "export PYTHONPATH=$PYTHONPATH:%s/tools/externals/lib/python/site-packages" % ROOT
     # run_command("%s;%s/tools/externals/usr/bin/pip install -r %s -t %s/externals/" % (envExport, ROOT, PIP_REQUIRES, ROOT), shell=True)
-    run_command("%s;%s/tools/externals/usr/bin/pip install -r %s --root=%s/tools/externals/" % (envExport, ROOT, PIP_REQUIRES_TEST, ROOT), shell=True)
+    run_command("%s;python %s/tools/externals/bin/pip install -r %s --prefix=%s/tools/externals/" % (envExport, ROOT, PIP_REQUIRES_TEST, ROOT), shell=True)
 
 
 def print_help():
@@ -101,9 +100,9 @@ $ source tools/setup_dev.sh
 
 def main():
     configure_git()
-    if not HAS_PIP:
-        print "Installing pip via wget"
-        install_pip()
+
+    print "Installing pip via wget"
+    install_pip()
 
     print "Installing dependencies via pip"
     install_dependencies()
