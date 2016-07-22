@@ -195,7 +195,7 @@ def test_output(command, title="SOME TEST", test=lambda x: len(x) == 0):
     test_title = '##### ' + title + ":"
 
     if test(out):
-        return True, test_title + " OK"
+        return True, test_title + " OK\n"
 
     return False, test_title + "\n```\n" + out + "\n```\n"
 
