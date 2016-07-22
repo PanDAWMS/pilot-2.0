@@ -192,10 +192,12 @@ def test_output(command, title="SOME TEST", test=lambda x: len(x) == 0):
     process = subprocess.Popen(['sh', '-c', command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = process.communicate()[0]
 
-    if test(out):
-        return ''
+    test_title = '##### ' + title + ":"
 
-    return '##### ' + title + ":\n```\n" + out + "\n```\n"
+    if test(out):
+        return True, test_title + " OK"
+
+    return False, test_title + "\n```\n" + out + "\n```\n"
 
 
 def get_diff(merge_request):
@@ -235,8 +237,12 @@ def test_request(merge_request):
     os.chdir(root_git_dir)
     update_venv()
 
-    error_lines += test_output("nosetests -v", title="UNIT TESTS", test=lambda x: x.endswith("OK\n"))
-    error_lines += test_output("flake8 .", title="FLAKE8")
+    tested, message = test_output("nosetests -v", title="UNIT TESTS", test=lambda x: x.endswith("OK\n"))
+    error_lines += message
+    tests_passed = tests_passed and tested
+    tested, message = test_output("flake8 .", title="FLAKE8")
+    error_lines += message
+    tests_passed = tests_passed and tested
 
     diff = get_diff(merge_request)
 
@@ -246,8 +252,6 @@ def test_request(merge_request):
         noqas += match[0][0]
         if len(match[0][3]) == 0:
             tests_passed = False
-
-    tests_passed = tests_passed and error_lines == ''
 
     error_lines += noqas
 
