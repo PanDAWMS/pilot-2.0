@@ -32,3 +32,16 @@ dist
 
 # JetBrains files
 .idea/
+
+# Created by https://www.gitignore.io/api/python,virtualenv
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
