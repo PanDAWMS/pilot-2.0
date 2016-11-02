@@ -1,16 +1,20 @@
 # coding=utf-8
 
-from .. import Switchable, Interface
+try:
+    from ...switchables import Switchable, Interface
+except ValueError:
+    from switchables import Switchable, Interface
+    pass
 
 
 class ExampleSwitchable(Switchable):
     a = None
 
-    def __init__(self, previous=None):
+    def __init__(self, interface, previous=None):
         print("I'm __init__")
         print("my class is " + self.__class__.__name__)
         print('my module is ' + self.__class__.__module__)
-        Switchable.__init__(self, previous)
+        Switchable.__init__(self, interface, previous)
         self.a = "prop test"
         if previous:
             print("previous class was " + previous.__class__.__name__)

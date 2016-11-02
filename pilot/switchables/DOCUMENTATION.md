@@ -96,10 +96,10 @@ the line will be the same:
 foo.switchable_load('other')
 ```
 But if your other implementation is in `strange_desicion.py`?
-In this case you can state the path with named parameter `base` as
+In this case you can state the path with named parameter `package` as
 follows:
 ```python
-foo.switchable_load('strange_desicion', base='some_other_package')
+foo.switchable_load('strange_desicion', package='some_other_package')
 ```
 In this case, we use an absolute base to our file. But if you don't know
 exactly the nesting of your code, just use a magic python variable
@@ -150,9 +150,9 @@ class MyExtendedImplementation(MyImplementation):
 And `.default` in this case will be exactly `my_plugin_pack.default`.
 
 And as in the case of modules, if you did your file in a different
-scope, just provide it's base in a `base` parameter:
+scope, just provide it's base in a `package` parameter:
 ```python
-foo.switchable_load(that_file_name, base='some_other_package')
+foo.switchable_load(that_file_name, package='some_other_package')
 ```
 
 
@@ -187,8 +187,10 @@ class MyImplementation(Switchable):
 
 class MyInterface(Interface):
     def __init__(self):
+        # type: () -> MyImplementation
         Interface.__init__(self, MyImplementation)
 ```
+*Note the type hint, it will save you time in PyCharm and others* 
 And in case of a separated abstract class:
 ```python
 from switchables import Switchable, Interface
@@ -201,8 +203,10 @@ class MyImplementation(MyAbstract):
 
 class MyInterface(Interface):
     def __init__(self):
+        # type: () -> MyAbstract
         Interface.__init__(self, MyImplementation, MyAbstract)
 ```
+*Note the type hint again* 
 Then any other implementation will inherit from abstract:
 ```python
 from my_default import MyAbstract
@@ -221,7 +225,7 @@ triggered:
 
 1. `Switchable.__switch__(self)`
    Prepares the old class.
-2. `Switchable.__init__(self, previous=None)`
+2. `Switchable.__init__(self, interface, previous=None)`
    Does switching.
 3. `Switchable.__switched__(self)`
    Cleans the old class.
@@ -237,7 +241,7 @@ whatever might be necessary.
 The procedure does not provide the new class because of the procedure
 is meant to be common for all the cases, the switch happens.
 
-#### `__init__(self, previous=None)`
+#### `__init__(self, interface, previous=None)`
 
 This function is initializing the implementation class. At this point,
 it may be that there was a previous class or there haven't been any.
@@ -255,6 +259,40 @@ switch was performed and meant to end all the things in a previous
 class. We don't know, how long it will remain in memory before `__die__`
 triggers, thus ew provide our own function.
 For most cases this function is unnecessary and may be omitted.
+
+Nice practice
+-------------
+
+A nice code practice example.
+_(lets consider different abstract and default, you may have only one)_
+Folder structure:
+```
+- myproject
+  |  ...
+  |- mycomponent
+  |  |- __init__.py
+  |  |- abstract.py (may be same as default)
+  |  |- default.py
+  |  |- other.py
+  |  |  ...
+  |- switchables (may be in the lib folder)
+  ...
+```
+And the contents of the `__init__.py`:
+```python
+from abstract import MyComponentAbstract 
+from default import MyComponentDefault
+from switchables import Interface
+
+class MyComponentInterface(Interface):
+    def __init__(self):
+        # type: () -> MyComponentAbstract
+        Interface.__init__(self, MyComponentDefault, MyComponentAbstract)
+```
+Then it will be more clean in later imports, and more convenient in
+terms. `__init__` is, as it has to be, an initializer and a presenter of
+an interface, and other files are the implementations.
+Also, note the type hint. Please, make sure, you've added this into.
 
 
 Common misuses
@@ -284,4 +322,9 @@ Switching back won't solve the problem in this situation:
 ```python
 foo.switchable_to_default()
 bar != foo.bar  # still True
+```
+The same is with functions:
+```python
+foo.bar()  # calls implementation->bar
+b = foo.bar  # binds to implementation->bar, not interface->bar
 ```

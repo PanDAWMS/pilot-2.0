@@ -57,8 +57,8 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    package_dir={'': 'lib'},
-    packages=find_packages('lib'),
+    package_dir={'': 'pilot'},
+    packages=find_packages('pilot'),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -93,5 +93,5 @@ setup(
     entry_points={},
 
     # In which package is the test suite
-    test_suite='pilot.test'
+    test_suite='tests'
 )

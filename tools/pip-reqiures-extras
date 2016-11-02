@@ -1,0 +1,3 @@
+pip>=7.1
+py-cpuinfo
+psutil>=4.1

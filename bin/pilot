@@ -1,0 +1,4 @@
+#!/bin/sh
+
+BIN_PATH=`dirname $0`
+python "$BIN_PATH/../pilot/main.py" $@
