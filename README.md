@@ -1,6 +1,6 @@
 # pilot-2.0
 
-See README.rst
+See [README.rst][README]
 
 ## Clean up environment
 
@@ -19,3 +19,5 @@ Be sure, you've installed `pep8-naming` also.
 ## Build a binary release for deployment
 
 `python setup.py bdist`
+
+[README]:   https://github.com/PanDAWMS/pilot-2.0/blob/dev/README.rst   README
