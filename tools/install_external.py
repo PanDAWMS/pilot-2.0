@@ -11,16 +11,9 @@
 
 
 import os
-import shutil
 import subprocess
 import sys
-import tempfile
 import imp
-
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
 
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 PIP_REQUIRES = os.path.join(ROOT, 'tools', 'pip-requires')
@@ -31,15 +24,6 @@ EXTERNALS = os.path.join(ROOT, 'tools', 'externals')
 def die(message, *args):
     print >> sys.stderr, message % args
     sys.exit(1)
-
-
-def download(url, to_path):
-    print 'Downloading %s into %s' % (url, to_path)
-    req = urlopen(url)
-    with open(to_path, 'wb') as fp:
-        for line in req:
-            fp.write(line)
-    return to_path
 
 
 def run_command(cmd, redirect_output=True, check_exit_code=True, shell=False):
@@ -64,8 +48,6 @@ def has_module(mod):
     except ImportError:
         return False
 
-HAS_PIP = has_module('pip')
-
 
 def configure_git():
     """
@@ -73,21 +55,6 @@ def configure_git():
     """
     print "Configure git"
     run_command(['sh', "./tools/configure_git.sh"])
-
-
-def install_pip():
-    """
-    Install pip to tools/externals
-    """
-    print "Installing pip via download"
-
-    tempdir = tempfile.mkdtemp()
-    try:
-        download('https://bootstrap.pypa.io/get-pip.py', os.path.join(tempdir, 'get-pip.py'))
-        run_command([sys.executable, os.path.join(tempdir, "get-pip.py"),
-                     '--prefix=' + EXTERNALS])
-    finally:
-        shutil.rmtree(tempdir)
 
 
 def install_dependencies():
@@ -115,8 +82,8 @@ def install_dependencies():
     if "LD_LIBRARY_PATH" in os.environ:
         os.environ["LD_LIBRARY_PATH"] = lib_dir + ":" + os.environ["LD_LIBRARY_PATH"]
 
-    run_command([sys.executable, '-m', "pip", 'install', '-r', PIP_REQUIRES_TEST,
-                 '--prefix=' + EXTERNALS], redirect_output=False)
+    run_command([sys.executable, os.path.join(ROOT, "tools/install_deps.py"), '--no_setup', '--prefix', EXTERNALS],
+                redirect_output=False)
 
 
 def print_help():
@@ -135,11 +102,10 @@ def main():
     print os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     # configure_git() # it is already configured, I suppose
-    if not HAS_PIP:
-        install_pip()
 
     print "Installing dependencies via pip"
     install_dependencies()
+
     print_help()
     os.chdir(cwd)
 

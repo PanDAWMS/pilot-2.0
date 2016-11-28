@@ -24,8 +24,7 @@ except ImportError:
 
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 VENV = os.path.join(ROOT, '.venv')
-PIP_REQUIRES = os.path.join(ROOT, 'tools', 'pip-requires')
-PIP_REQUIRES_TEST = os.path.join(ROOT, 'tools', 'pip-requires-test')
+PIP_DEPS = os.path.join(ROOT, 'tools', 'install_deps.py')
 
 
 def die(message, *args):
@@ -79,8 +78,6 @@ def create_virtualenv(venv=VENV):
 
     tempdir = tempfile.mkdtemp()
     try:
-        download("https://bootstrap.pypa.io/ez_setup.py", os.path.join(tempdir, "ez_setup.py"))
-        download("https://bootstrap.pypa.io/get-pip.py", os.path.join(tempdir, "get-pip.py"))
         if HAS_VIRTUALENV:
             print 'Creating venv...'
             run_command([sys.executable, "-m", 'virtualenv', '-q', '--no-site-packages', '--no-setuptools', '--no-pip',
@@ -92,27 +89,14 @@ def create_virtualenv(venv=VENV):
                                 '--no-setuptools', '--no-pip', '--no-wheel', VENV]).strip():
                 die('Failed to install virtualenv.')
             HAS_VIRTUALENV = True
-        print 'done.'
-        print 'Installing setuptools and pip into virtualenv...'
 
-        if not run_command(["sh", "tools/with_venv.sh", "python", (os.path.join(tempdir, "ez_setup.py"))]).strip()\
-                or not run_command(['sh', 'tools/with_venv.sh', 'python', os.path.join(tempdir, "get-pip.py"),
-                                    '--prefix=' + VENV]).strip():
-            die("Failed to install setuptools and pip.")
+        run_command(['sh', 'tools/with_venv.sh', 'python', PIP_DEPS],
+                    redirect_output=False)
+
+        print 'done.'
     finally:
         shutil.rmtree(tempdir)
     print 'done.'
-
-
-def install_dependencies(venv=VENV, client=False):
-    print 'Installing dependencies with pip (this can take a while)...'
-
-    if not client:
-        run_command(['sh', 'tools/with_venv.sh', 'python', '-m', 'pip', 'install', '-r', PIP_REQUIRES],
-                    redirect_output=False)
-
-    run_command(['sh', 'tools/with_venv.sh', 'python', '-m', 'pip', 'install', '-r', PIP_REQUIRES_TEST],
-                redirect_output=False)
 
 
 def _detect_python_version(venv):
@@ -150,5 +134,4 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     (options, args) = parser.parse_args()
     create_virtualenv()
-    install_dependencies()
     print_help()

@@ -1,0 +1,20 @@
+sudo: required
+
+language: python
+python: 2.7
+
+services:
+  - docker
+
+before_install:
+  - docker build -t complynx/pilot-test .
+  - pip install -r tools/pip-requires
+  - pip install -r tools/pip-requires-test
+
+script:
+  - docker run --privileged complynx/pilot-test bash -c "source ~/.bashrc; nosetests"
+  - flake8 .
+
+after_success:
+#  - pip install coveralls
+#  - coveralls

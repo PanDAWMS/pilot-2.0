@@ -245,7 +245,7 @@ def test_request(merge_request):
     os.chdir(root_git_dir)
     update_venv()
 
-    test_passed, message = test_output("nosetests -v --exclude=.venv --exclude=tools",
+    test_passed, message = test_output("nosetests",
                                        title="UNIT TESTS",
                                        test=lambda x: x.endswith("OK\n"))
     tests_passed = tests_passed and test_passed
